@@ -1,0 +1,9 @@
+[package]
+name = "axum-server"
+version = "0.1.0"
+edition = "2024"
+
+[dependencies]
+axum = { version = "0.8.3", features = ["macros"] }
+tokio = { version = "1.47", features = ["full"] }
+objs = { path="./../objs" }
