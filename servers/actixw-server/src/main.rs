@@ -16,7 +16,7 @@ async fn handler_deep_obj(Json(_payload): Json<DeepObject>) -> impl Responder {
     HttpResponse::NoContent().finish()
 }
 
-const ADDR: &str = "127.0.0.1:8181";
+const ADDR: &str = "0.0.0.0:9876";
 
 #[actix_web::main]
 async fn main() -> std::io::Result<()> {

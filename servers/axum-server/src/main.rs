@@ -19,7 +19,7 @@ async fn handler_deep_obj(Json(_payload): Json<DeepObject>) -> Response {
     StatusCode::NO_CONTENT.into_response()
 }
 
-const ADDR: &'static str = "127.0.0.1:8080";
+const ADDR: &'static str = "0.0.0.0:6789";
 
 #[tokio::main]
 async fn main() {

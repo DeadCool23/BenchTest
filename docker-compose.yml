@@ -1,0 +1,30 @@
+version: '3.8'
+
+services:
+  axum-server:
+    build:
+      context: .
+      dockerfile: ./docker/axum.Dockerfile
+    container_name: axum-server
+    restart: always
+    ports:
+      - "6789:6789"
+    deploy:
+      resources:
+        limits:
+          cpus: '1.0'
+          memory: '1G'
+  
+  actix-server:
+    build:
+      context: .
+      dockerfile: ./docker/actix.Dockerfile
+    container_name: actix-server
+    restart: always
+    ports:
+      - "9876:9876"
+    deploy:
+      resources:
+        limits:
+          cpus: '1.0'
+          memory: '1G'
