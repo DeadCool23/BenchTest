@@ -1,3 +1,3 @@
 [workspace]
 resolver="2"
-members = ["actixw-server","axum-server", "objs"]
+members = ["actixw-server","axum-server", "metrics", "objs"]

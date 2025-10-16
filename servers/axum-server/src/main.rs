@@ -3,9 +3,14 @@ use axum::{
     extract::Json,
     http::StatusCode,
     response::{IntoResponse, Response},
-    routing::post,
+    routing::{get, post},
 };
 use objs::*;
+
+async fn handler_metrics() -> Response {
+    let m = metrics::collect_metrics();
+    Json(m).into_response()
+}
 
 async fn handler_mixed_obj(Json(_payload): Json<MixedObject>) -> Response {
     StatusCode::NO_CONTENT.into_response()
@@ -26,7 +31,8 @@ async fn main() {
     let app = Router::new()
         .route("/mixed", post(handler_mixed_obj))
         .route("/flat", post(handler_flat_obj))
-        .route("/deep", post(handler_deep_obj));
+        .route("/deep", post(handler_deep_obj))
+        .route("/metrics", get(handler_metrics));
 
     let listener = tokio::net::TcpListener::bind(ADDR)
         .await

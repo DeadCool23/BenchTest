@@ -6,4 +6,6 @@ edition = "2024"
 [dependencies]
 axum = { version = "0.8.3", features = ["macros"] }
 tokio = { version = "1.47", features = ["full"] }
+
+metrics ={ path="./../metrics" }
 objs = { path="./../objs" }

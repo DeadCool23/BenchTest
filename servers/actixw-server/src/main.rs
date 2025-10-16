@@ -1,5 +1,11 @@
-use actix_web::{App, HttpResponse, HttpServer, Responder, post, web::Json};
+use actix_web::{App, HttpResponse, HttpServer, Responder, get, post, web::Json};
 use objs::*;
+
+#[get("/metrics")]
+async fn handler_metrics() -> impl Responder {
+    let m = metrics::collect_metrics();
+    HttpResponse::Ok().json(m)
+}
 
 #[post("/mixed")]
 async fn handler_mixed_obj(Json(_payload): Json<MixedObject>) -> impl Responder {
