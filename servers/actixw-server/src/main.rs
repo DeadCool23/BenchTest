@@ -8,18 +8,45 @@ async fn handler_metrics() -> impl Responder {
 }
 
 #[post("/mixed")]
-async fn handler_mixed_obj(Json(_payload): Json<MixedObject>) -> impl Responder {
-    HttpResponse::NoContent().finish()
+async fn handler_mixed_obj(Json(payload): Json<MixedObject>) -> impl Responder {
+    match serde_json::to_string(&payload) {
+        Ok(json_string) => {
+            println!("Сериализованный JSON: {}", json_string);
+            HttpResponse::NoContent().finish()
+        }
+        Err(e) => {
+            eprintln!("Ошибка сериализации: {}", e);
+            HttpResponse::InternalServerError().body("Ошибка сериализации")
+        }
+    }
 }
 
 #[post("/flat")]
-async fn handler_flat_obj(Json(_payload): Json<FlatObject>) -> impl Responder {
-    HttpResponse::NoContent().finish()
+async fn handler_flat_obj(Json(payload): Json<FlatObject>) -> impl Responder {
+    match serde_json::to_string(&payload) {
+        Ok(json_string) => {
+            println!("Сериализованный JSON: {}", json_string);
+            HttpResponse::NoContent().finish()
+        }
+        Err(e) => {
+            eprintln!("Ошибка сериализации: {}", e);
+            HttpResponse::InternalServerError().body("Ошибка сериализации")
+        }
+    }
 }
 
 #[post("/deep")]
-async fn handler_deep_obj(Json(_payload): Json<DeepObject>) -> impl Responder {
-    HttpResponse::NoContent().finish()
+async fn handler_deep_obj(Json(payload): Json<DeepObject>) -> impl Responder {
+    match serde_json::to_string(&payload) {
+        Ok(json_string) => {
+            println!("Сериализованный JSON: {}", json_string);
+            HttpResponse::NoContent().finish()
+        }
+        Err(e) => {
+            eprintln!("Ошибка сериализации: {}", e);
+            HttpResponse::InternalServerError().body("Ошибка сериализации")
+        }
+    }
 }
 
 const ADDR: &str = "0.0.0.0:9876";
@@ -31,6 +58,7 @@ async fn main() -> std::io::Result<()> {
             .service(handler_mixed_obj)
             .service(handler_flat_obj)
             .service(handler_deep_obj)
+            .service(handler_metrics)
     })
     .bind(ADDR)?
     .run()

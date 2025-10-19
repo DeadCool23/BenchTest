@@ -192,6 +192,8 @@ dependencies = [
  "actix-web",
  "metrics",
  "objs",
+ "serde",
+ "serde_json",
 ]
 
 [[package]]
@@ -325,6 +327,8 @@ dependencies = [
  "axum",
  "metrics",
  "objs",
+ "serde",
+ "serde_json",
  "tokio",
 ]
 

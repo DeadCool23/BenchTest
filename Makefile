@@ -2,7 +2,7 @@ build-servers:
 	@cd ./servers && cargo build --release -p axum-server -p actixw-server
 
 docker-up: build-servers
-	docker compose up -d
+	docker compose up -d --build
 
 docker-down:
 	docker compose down

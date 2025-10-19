@@ -12,16 +12,43 @@ async fn handler_metrics() -> Response {
     Json(m).into_response()
 }
 
-async fn handler_mixed_obj(Json(_payload): Json<MixedObject>) -> Response {
-    StatusCode::NO_CONTENT.into_response()
+async fn handler_mixed_obj(Json(payload): Json<MixedObject>) -> Response {
+    match serde_json::to_string(&payload) {
+        Ok(json_string) => {
+            println!("Сериализованный JSON: {}", json_string);
+            StatusCode::NO_CONTENT.into_response()
+        }
+        Err(e) => {
+            eprintln!("Ошибка сериализации: {}", e);
+            (StatusCode::INTERNAL_SERVER_ERROR, "Ошибка сериализации").into_response()
+        }
+    }
 }
 
-async fn handler_flat_obj(Json(_payload): Json<FlatObject>) -> Response {
-    StatusCode::NO_CONTENT.into_response()
+async fn handler_flat_obj(Json(payload): Json<FlatObject>) -> Response {
+    match serde_json::to_string(&payload) {
+        Ok(json_string) => {
+            println!("Сериализованный JSON: {}", json_string);
+            StatusCode::NO_CONTENT.into_response()
+        }
+        Err(e) => {
+            eprintln!("Ошибка сериализации: {}", e);
+            (StatusCode::INTERNAL_SERVER_ERROR, "Ошибка сериализации").into_response()
+        }
+    }
 }
 
-async fn handler_deep_obj(Json(_payload): Json<DeepObject>) -> Response {
-    StatusCode::NO_CONTENT.into_response()
+async fn handler_deep_obj(Json(payload): Json<DeepObject>) -> Response {
+    match serde_json::to_string(&payload) {
+        Ok(json_string) => {
+            println!("Сериализованный JSON: {}", json_string);
+            StatusCode::NO_CONTENT.into_response()
+        }
+        Err(e) => {
+            eprintln!("Ошибка сериализации: {}", e);
+            (StatusCode::INTERNAL_SERVER_ERROR, "Ошибка сериализации").into_response()
+        }
+    }
 }
 
 const ADDR: &'static str = "0.0.0.0:6789";
