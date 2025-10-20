@@ -1,15 +1,12 @@
 import requests
 import statistics
-from datetime import datetime
 
 from locust import HttpUser, task, between
 from locust.env import Environment
-from locust.stats import stats_printer, stats_history
 
 import gevent
-from gevent import monkey
-
-monkey.patch_all()
+import gevent.monkey
+gevent.monkey.patch_all()
 
 def load_route(
     shost: str, 
@@ -32,9 +29,6 @@ def load_route(
     env = Environment(user_classes=[User])
     env.create_local_runner()
 
-    gevent.spawn(stats_printer(env.stats))
-    gevent.spawn(stats_history, env.runner)
-
     metrics_data = []
 
     def collect_metrics():
@@ -44,7 +38,6 @@ def load_route(
                 r = requests.get(metrics_url, timeout=3)
                 if r.ok:
                     data = r.json()
-                    data["timestamp"] = datetime.isoformat(data['timestamp'])
                     metrics_data.append(data)
                     print(f"metrics: CPU={data['cpu_percent']:.1f}% RAM={data['ram_percent']:.1f}% Threads={data['thread_count']}")
                 else:
@@ -65,7 +58,7 @@ def load_route(
     for stat in env.stats.entries.values():
         print(f"{stat.name}: {stat.num_requests} запросов, "
               f"{stat.avg_response_time:.2f} мс, "
-              f"{stat.fail_ratio*100:.2f}% ошибок")
+              f"{stat.fail_ratio*100:.2f}% ошибок\n\n")
 
     cpu_values = [m["cpu_percent"] for m in metrics_data]
     ram_values = [m["ram_percent"] for m in metrics_data]
@@ -106,8 +99,7 @@ def load_scenario_route(
     
     return metrics
 
-
-# import objs as o
+# import scripts.objs as o
 # if __name__ == "__main__":
 #     h = o.generate_flat_obj()
 #     o.print_obj(h)
