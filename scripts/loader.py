@@ -1,3 +1,4 @@
+import docker
 import requests
 import statistics
 
@@ -8,6 +9,11 @@ import gevent
 import gevent.monkey
 gevent.monkey.patch_all()
 
+EPS=0.1
+CONTAINER_NAME="helloworld"
+
+SID=0
+
 def load_route(
     shost: str, 
     route: str, 
@@ -17,6 +23,7 @@ def load_route(
     metrics_route: str = "/metrics",
     metrics_interval: int = 2
 ) -> dict:
+    global SID
     print(f"start for {users_cnt} users")
     class User(HttpUser):
         wait_time = between(0.1, 0.3)
@@ -45,8 +52,37 @@ def load_route(
             except Exception as e:
                 print(f"Ошибка запроса метрик: {e}")
             gevent.sleep(metrics_interval)
+    
+    def collect_docker_metrics():
+        client = docker.from_env()
 
-    gevent.spawn(collect_metrics)
+        container = client.containers.get(CONTAINER_NAME)
+
+        while True:
+            stats = container.stats(stream=False)
+
+            cpu_delta = stats["cpu_stats"]["cpu_usage"]["total_usage"] - stats["precpu_stats"]["cpu_usage"]["total_usage"]
+            system_delta = stats["cpu_stats"]["system_cpu_usage"] - stats["precpu_stats"]["system_cpu_usage"]
+
+            cpu_percent = 0.0
+            if system_delta > 0 and cpu_delta > 0:
+                online_cpus = stats["cpu_stats"].get("online_cpus", 1)
+                cpu_percent = (cpu_delta / system_delta) * online_cpus * 100.0
+
+            mem_usage = stats["memory_stats"]["usage"]
+            mem_limit = stats["memory_stats"]["limit"]
+            mem_percent = (mem_usage / mem_limit) * 100.0
+
+            if mem_percent > EPS and cpu_percent > EPS:
+                metrics_data.append({
+                    "cpu_percent": cpu_percent,
+                    "ram_percent": mem_percent
+                })
+                print(f"CPU={cpu_percent:.1f}%  RAM={mem_percent:.1f}% ({mem_usage/1024/1024:.1f}MB/{mem_limit/1024/1024:.1f}MB)")
+
+            gevent.sleep(metrics_interval)
+
+    gevent.spawn(collect_docker_metrics)
 
     env.runner.start(user_count=users_cnt, spawn_rate=users_cnt)
 
@@ -63,13 +99,19 @@ def load_route(
     cpu_values = [m["cpu_percent"] for m in metrics_data]
     ram_values = [m["ram_percent"] for m in metrics_data]
 
+    SID += 1
     return {
+        'id': SID - 1,
+
         'users_cnt': users_cnt,
         'num_requests': env.stats.total.num_requests,
-        'avg_response_time': env.stats.total.avg_response_time,
-        'min_cpu_percent': min(cpu_values),
+
+        'response_time': env.stats.total.avg_response_time,
+        
+        'min_cpu_percent': min(cpu_values), 
         'med_cpu_percent': statistics.median(cpu_values),
         'max_cpu_percent': max(cpu_values),
+
         'min_ram_percent': min(ram_values),
         'med_ram_percent': statistics.median(ram_values),
         'max_ram_percent': max(ram_values),
@@ -84,6 +126,7 @@ def load_scenario_route(
     metrics_route: str = "/metrics",
     metrics_interval: int = 2
 ) -> list[dict]:
+    global SID
     metrics = []
 
     for users_cnt in users_cnts:
@@ -97,18 +140,5 @@ def load_scenario_route(
             metrics_interval
         ))
     
+    SID = 0
     return metrics
-
-# import scripts.objs as o
-# if __name__ == "__main__":
-#     h = o.generate_flat_obj()
-#     o.print_obj(h)
-#     users = [i for i in range(10000, 100001, 10000)]
-#     for user in users:
-#         load_route(
-#             shost="http://localhost:6789",
-#             route="/flat",
-#             users_cnt=user,
-#             payload=o.generate_flat_obj(),
-#             run_time=10
-#         )

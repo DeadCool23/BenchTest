@@ -1,7 +1,7 @@
 import pandas as pd
 
-import scripts.loader as l
-import scripts.container_manager as c
+import loader as l
+import container_manager as c
 
 def measure_server(
     shost: str,
@@ -22,11 +22,11 @@ def measure_server(
 
     dfs = [pd.DataFrame(r) for r in measures]
 
-    combined = pd.concat(dfs).groupby("users_cnt", as_index=False).mean(numeric_only=True)
-
+    combined = pd.concat(dfs).groupby("id", as_index=False).mean(numeric_only=True)
+    combined = combined.drop('id', axis=1)
+    
     print(combined)
     return combined
-
 
 def measures_server(
     shost: str,
@@ -45,13 +45,3 @@ def measures_server(
             n=n
         ))
     return measures
-
-# import scripts.objs as o
-# if __name__ == '__main__':
-#     measure_server(
-#         shost="http://localhost:6789",
-#         route="/flat",
-#         users_cnts=[10, 20],
-#         payload=o.generate_flat_obj(),
-#         n=2
-#     )

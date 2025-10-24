@@ -154,18 +154,13 @@ def generate_mixed_obj() -> dict:
     }
 
 def generate_deep_obj() -> dict:
-    current_level = {
-        'data': ''.join(random.choices(string.ascii_letters, k=20))
-    }
+    current_level = {'data': ''.join(random.choices(string.ascii_letters, k=20))}
     
     for level in range(49, 0, -1):
-        current_level = {
-            f'l{level + 1}': current_level
-        }
+        current_level = {f'l{level + 1}': current_level}
     
-    return {
-        'l1': current_level['l2']
-    }
+    return {'l1': current_level}
+
 
 def print_obj(obj: dict):
     print(json.dumps(obj, indent=2, ensure_ascii=False))
