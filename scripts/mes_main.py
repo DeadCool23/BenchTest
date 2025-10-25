@@ -13,7 +13,7 @@ if __name__ == '__main__':
         print("Не указан сценарий нагрузки")
         sys.exit(1)
 
-N = 1
+N = 100
 
 __FRAMEWORK_NAMES = [
     "axum", 
